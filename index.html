@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Compositional Image Decomposition with Diffusion Models.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compositional Image Decomposition with Diffusion Models</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3593LNYVK9"></script>
+<script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-3593LNYVK9');
+</script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+  <link rel="stylesheet" href="bootstrap-grid.css">
+  <link rel="stylesheet" href="slideshow.css">
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script src="load-mathjax.js" async></script>
+  <script src="slideshow.js" defer></script>
+
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://github.com/jsu27">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://energy-based-model.github.io/Compositional-Visual-Generation-with-Composable-Diffusion-Models/">
+            Composable Diffusion
+          </a>
+          <a class="navbar-item" href="https://energy-based-model.github.io/comet/">
+            COMET
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Compositional Image Decomposition with Diffusion Models</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://github.com/jsu27">Jocelin Su</a><sup>1*</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://nanliu.io/">Nan Liu</a><sup>2*</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://openreview.net/profile?id=~Yanbo_Wang3">Yanbo Wang</a><sup>3*</sup>,
+            </span>
+            <span class="author-block">
+              <a href="http://web.mit.edu/cocosci/josh.html">Joshua B. Tenenbaum</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://yilundu.github.io/">Yilun Du</a><sup>1</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>MIT,</span>
+            <span class="author-block"><sup>2</sup>UIUC,</span>
+            <span class="author-block"><sup>3</sup>TU Delft</span>
+            <p>(* indicates equal contribution)</p>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/jsu27/decomp_diffusion"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="materials/figures/teaser_denoising.mp4"
+                type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+<hr>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Our visual understanding of the world is factorized and compositional. With just a single visual observation, we can deduce both global and local scene attributes, such as materials, weather, lighting, and underlying objects in the scene. These attributes are highly compositional and can be combined in various ways to create new representations of the world. This website introduces Decomp Diffusion, an unsupervised method for decomposing images into a set of underlying compositional factors, each represented by a different diffusion model. We demonstrate how each decomposed diffusion model captures a different factor of the scene, ranging from global scene descriptors (e.g. shadows, foreground, facial expression) to local scene descriptors (e.g. constituent objects). Furthermore, we show how these inferred factors can be flexibly composed and recombined both within and across different image datasets.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<hr>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+          <!-- <p>
+            <p>We discover a set of compositional concepts given a dataset of unlabeled images. Score functions representing each concept $\{c^1, \dots, c^K\}$ are composed together to form a compositional score function that is trained to denoise images. The inferred concepts can be used to generate new images.
+          </p> -->
+
+          <p> 
+            Decomp Diffusion is an unsupervised approach that discovers compositional concepts from images, which may be flexibly combined both within and across different image modalities.
+            In particular, it leverages the close connection between Energy-Based Models and diffusion models to decompose a scene into a set of factors, each represented as separate diffusion models. 
+          </p>
+
+
+          <!-- <video autoplay muted loop playsinline height="100%">
+            <source src="materials/figures/method_animation.mp4" type="video/mp4">
+          </video> -->
+          <video autoplay muted loop controls playsinline width="100%">
+            <source src="materials/figures/diffusion_method_animation.mp4" type="video/mp4">
+          </video>
+
+        <!-- Composition between factors is achieved by sampling images from a composed diffusion distribution. Similar to composition between energy functions, this allows individual factors to represent both global and local concepts, and enables the recombination of concepts across different models and datasets. However, unlike the underlying energy decomposition objective of COMET, Decomp Diffusion may directly be trained through denoising, a stable and less expensive learning objective, and leads to higher resolution images. -->
+
+          <p>
+            Our method decomposes inputs into $K$ components, where $K$ is a hyperparameter. We learn a set of $K$ denoising functions to recover a training image $\boldsymbol{x}_0$. Each denoising function is conditioned on a latent $\boldsymbol{z}_k$, which is inferred by a neural network encoder $\text{Enc}_\theta(\boldsymbol{x}_0)[k]$. 
+            Once we train these denoising functions, we use the standard noisy optimization objective to sample from compositions of different factors. 
+          </p>
+            <!-- \def\vx{{\bm{x}}} -->
+
+          <br>
+        </div>
+        <hr>
+
+        <h2 class="title is-3">Demo</h2>
+        <div class="content has-text-justified">
+          <p class="description">
+            We illustrate our approach's ability to decompose images into both global and local concepts, as well as reconstruct the original image by recombining concepts. 
+
+          </p>
+          <p>
+            <em>Click</em> on an image to view its decomposition and reconstruction.
+            <em>Hover</em> over a decomposed component to view its description.
+
+          </p>
+        </div>
+
+
+
+
+        <!-- Container for the image gallery -->
+        <div class="container slideshow">
+          <!-- <div class="caption-container">
+            <p id="caption"></p>
+          </div> -->
+
+
+          <div class="mySlides">
+            <!-- <div class="numbertext">2 / 5</div> -->
+            <!-- <img src="materials/slideshow/celeb_row.png" style="width:100%"> -->
+
+            <div class="gallery-container">
+              <div class="gallery">
+
+                <div class="gallery__text--1">
+                  Original
+                </div>
+                <div class="gallery__text--2">
+                  Decomposition
+                </div>
+                <div class="gallery__text--3">
+                  Reconstruction
+                </div>
+
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+
+                <div class="gallery__item gallery__item--1">
+                  <img src="materials/slideshow/celeb/celebahq_orig.png" class="gallery__img" alt="Image 1">
+                  <!-- <div class="overlay">
+                    <div class="text2">Original</div>
+                  </div> -->
+                </div>
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+                <div class="gallery__item gallery__item--2">
+                  <img src="materials/slideshow/celeb/celebahq_0.png" class="gallery__img" alt="Image 2">
+                  <div class="overlay">
+                    <div class="text">Facial Features</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--3">
+                  <img src="materials/slideshow/celeb/celebahq_1.png" class="gallery__img" alt="Image 3">
+                  <div class="overlay">
+                    <div class="text">Hair Color</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--4">
+                  <img src="materials/slideshow/celeb/celebahq_2.png" class="gallery__img" alt="Image 4">
+                  <div class="overlay">
+                    <div class="text">Skin Tone</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--5">
+                  <img src="materials/slideshow/celeb/celebahq_3.png" class="gallery__img" alt="Image 5">
+                  <div class="overlay">
+                    <div class="text">Hair Shape</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--6">
+                  <img src="materials/slideshow/celeb/celebahq_gen.png" class="gallery__img" alt="Image 6">
+                  <!-- <div class="overlay">
+                    <div class="text2">Reconstruction</div>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- Full-width images with number text -->
+          <div class="mySlides">
+            <!-- <div class="numbertext">1 / 5</div> -->
+
+            <div class="gallery-container">
+              <div class="gallery">
+
+                <div class="gallery__text--1">
+                  Original
+                </div>
+                <div class="gallery__text--2">
+                  Decomposition
+                </div>
+                <div class="gallery__text--3">
+                  Reconstruction
+                </div>
+
+                <div class="gallery__item gallery__item--1">
+                  <img src="materials/slideshow/clevr/clevr_orig.png" class="gallery__img" alt="Image 1">
+                  <!-- <div class="overlay">
+                    <div class="text2">Original</div>
+                  </div> -->
+
+                </div>
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+
+                <div class="gallery__item gallery__item--2">
+                  <img src="materials/slideshow/clevr/clevr_0.png" class="gallery__img" alt="Image 2">
+                  <div class="overlay">
+                    <div class="text"> Object 3</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--3">
+                  <img src="materials/slideshow/clevr/clevr_1.png" class="gallery__img" alt="Image 3">
+                  <div class="overlay">
+                    <div class="text">Object 2</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--4">
+                  <img src="materials/slideshow/clevr/clevr_2.png" class="gallery__img" alt="Image 4">
+                  <div class="overlay">
+                    <div class="text">Object 4</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--5">
+                  <img src="materials/slideshow/clevr/clevr_3.png" class="gallery__img" alt="Image 5">
+                  <div class="overlay">
+                    <div class="text">Object 1</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--6">
+                  <img src="materials/slideshow/clevr/clevr_gen.png" class="gallery__img" alt="Image 6">
+                  <!-- <div class="overlay">
+                    <div class="text2">Reconstruction</div>
+                  </div> -->
+                </div>
+              </div>
+
+            </div>
+          
+          </div>
+
+          <div class="mySlides">
+            <!-- <div class="numbertext">3 / 5</div> -->
+
+            <div class="gallery-container">
+              <div class="gallery">
+
+                <div class="gallery__text--1">
+                  Original
+                </div>
+                <div class="gallery__text--2">
+                  Decomposition
+                </div>
+                <div class="gallery__text--3">
+                  Reconstruction
+                </div>
+
+                <div class="gallery__item gallery__item--1">
+                  <img src="materials/slideshow/vkitti/vkitti_orig.jpg" class="gallery__img" alt="Image 1">
+                  <!-- <div class="overlay">
+                    <div class="text2">Original</div>
+                  </div> -->
+                </div>
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+                <div class="gallery__item gallery__item--2">
+                  <img src="materials/slideshow/vkitti/vkitti_0.png" class="gallery__img" alt="Image 2">
+                  <div class="overlay">
+                    <div class="text">Shadow</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--3">
+                  <img src="materials/slideshow/vkitti/vkitti_1.png" class="gallery__img" alt="Image 3">
+                  <div class="overlay">
+                    <div class="text">Lighting</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--4">
+                  <img src="materials/slideshow/vkitti/vkitti_2.png" class="gallery__img" alt="Image 4">
+                  <div class="overlay">
+                    <div class="text">Landscape</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--5">
+                  <img src="materials/slideshow/vkitti/vkitti_3.png" class="gallery__img" alt="Image 5">
+                  <div class="overlay">
+                    <div class="text">Objects</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--6">
+                  <img src="materials/slideshow/vkitti/vkitti_gen.png" class="gallery__img" alt="Image 6">
+                  <!-- <div class="overlay">
+                    <div class="text2">Reconstruction</div>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mySlides">
+            <!-- <div class="numbertext">4 / 5</div> -->
+
+            <div class="gallery-container">
+              <div class="gallery">
+
+                <div class="gallery__text--1">
+                  Original
+                </div>
+                <div class="gallery__text--2">
+                  Decomposition
+                </div>
+                <div class="gallery__text--3">
+                  Reconstruction
+                </div>
+
+                <div class="gallery__item gallery__item--1">
+                  <img src="materials/slideshow/tetris/tetris_orig.png" class="gallery__img" alt="Image 1">
+                  <!-- <div class="overlay">
+                    <div class="text2">Original</div>
+                  </div> -->
+                </div>
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+                <div class="gallery__item gallery__item--2">
+                  <img src="materials/slideshow/tetris/tetris_0.png" class="gallery__img" alt="Image 2">
+                  <div class="overlay">
+                    <div class="text"> Object 3</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--3">
+                  <img src="materials/slideshow/tetris/tetris_2.png" class="gallery__img" alt="Image 3">
+                  <div class="overlay">
+                    <div class="text">Object 2</div>
+                  </div>
+                </div>
+
+                <!-- <div class="gallery__item gallery__item--4">
+                  <img src="materials/slideshow/tetris/tetris_2.png" class="gallery__img" alt="Image 4">
+                  <div class="overlay">
+                    <div class="text">Object 3</div>
+                  </div>
+                </div> -->
+                <div class="gallery__item gallery__item--5">
+                  <img src="materials/slideshow/tetris/tetris_1.png" class="gallery__img" alt="Image 5">
+                  <div class="overlay">
+                    <div class="text">Object 1</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--6">
+                  <img src="materials/slideshow/tetris/tetris_gen.png" class="gallery__img" alt="Image 6">
+                  <!-- <div class="overlay">
+                    <div class="text2">Reconstruction</div>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mySlides">
+            <div class="gallery-container">
+              <div class="gallery">
+
+                <div class="gallery__text--1">
+                  Original
+                </div>
+                <div class="gallery__text--2">
+                  Decomposition
+                </div>
+                <div class="gallery__text--3">
+                  Reconstruction
+                </div>
+
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+
+                <div class="gallery__item gallery__item--1">
+                  <img src="materials/slideshow/anime/anime_orig.png" class="gallery__img" alt="Image 1">
+                  <!-- <div class="overlay">
+                    <div class="text2">Original</div>
+                  </div> -->
+                </div>
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+
+                <div class="gallery__item gallery__item--2">
+                  <img src="materials/slideshow/anime/anime_0.png" class="gallery__img" alt="Image 2">
+                  <div class="overlay">
+                    <div class="text">Facial Features</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--3">
+                  <img src="materials/slideshow/anime/anime_1.png" class="gallery__img" alt="Image 3">
+                  <div class="overlay">
+                    <div class="text">Hair Color</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--4">
+                  <img src="materials/slideshow/anime/anime_2.png" class="gallery__img" alt="Image 4">
+                  <div class="overlay">
+                    <div class="text">Skin Tone</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--5">
+                  <img src="materials/slideshow/anime/anime_3.png" class="gallery__img" alt="Image 5">
+                  <div class="overlay">
+                    <div class="text">Hair</div>
+                  </div>
+                </div>
+                <div class="gallery__item gallery__item--6">
+                  <img src="materials/slideshow/anime/anime_gen.png" class="gallery__img" alt="Image 6">
+                  <!-- <div class="overlay">
+                    <div class="text2">Reconstruction</div>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Next and previous buttons -->
+          <!-- <a class="prev" onclick="plusSlides(-1)">&#10094;</a> -->
+          <a class="next" onclick="plusSlides(1)">&#10095;</a>
+
+          <!-- Image text -->
+          <!-- <div class="caption-container">
+            <p id="caption"></p>
+          </div> -->
+
+
+          <!-- Thumbnail images -->
+          <div class="row">
+            <div class="column column2">
+              <img class="demo cursor" src="materials/slideshow/celeb/celebahq_orig.png" style="width:100%" onclick="currentSlide(1)" alt="CelebA-HQ">
+            </div>
+            <div class="column column2">
+              <img class="demo cursor" src="materials/slideshow/clevr/clevr_orig.png" style="width:100%" onclick="currentSlide(2)" alt="CLEVR">
+            </div>
+            <div class="column column2">
+              <img class="demo cursor" src="materials/slideshow/vkitti/vkitti_orig.jpg" style="width:100%" onclick="currentSlide(3)" alt="KITTI">
+            </div>
+            <div class="column column2">
+              <img class="demo cursor" src="materials/slideshow/tetris/tetris_orig.png" style="width:100%" onclick="currentSlide(4)" alt="Tetris">
+            </div>
+            <div class="column column2">
+              <img class="demo cursor" src="materials/slideshow/anime/anime_orig.png" style="width:100%" onclick="currentSlide(5)" alt="Anime">
+            </div>
+
+          </div>
+        <!-- Container for the image gallery -->
+        </div>
+
+        <!-- </div> -->
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+<hr>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            Below, we showcase additional examples of decomposition and reconstruction. We also show that discovered concepts generalize well and can compose across different modalities of data. 
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title">Global Factors</h3>
+        <p>
+          Given a set of input images, Decomp Diffusion can capture a set of global scene descriptors such as lighting and background, and recombine them to construct image variations.
+        </p>
+        <br>
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Decomposition and Reconstruction</h4>
+          <p>
+            Our method can enable global factor decomposition and reconstruction on CelebA-HQ (Left) and Virtual KITTI 2 (Right). Note that we name inferred concepts for easy understanding.
+          </p>
+        </div>
+        
+        <img src="materials/figures/global_factor_decomposition.png"
+             alt="Global Decomposition."/>
+
+
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Recombination</h4>
+          <p>
+            Our approach can also recombine factors to produce new images. In Falcor3D (Left), we produce variations on a source image by varying a target factor, such as lighting intensity, while preserving its other factors. 
+            In CelebA-HQ (Right), we recombine factors from two different inputs to generate novel face combinations.
+
+          </p>
+        </div>
+        <img src="materials/figures/global_factor_recombination.png"
+              alt="Global Recombination."/>
+
+
+        <br/>
+      </div>
+    </div>
+  </div>
+</section>
+<hr>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Local Factors</h2>
+        <p>
+          Given an input image with multiple objects, e.g., a purple cylinder and a green cube, Decomp Diffusion can decompose the input image into individual object components using object-level segmentation.            
+        </p>
+        <br>
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Decomposition and Reconstruction</h4>
+          <p>
+            Our method can extract individual object components that can be reused for image reconstruction on CLEVR (left) and Tetris (right).            
+          </p>
+        </div>
+        <img src="materials/figures/local_factor_decomposition.png"
+          alt="Local Decomposition."/>
+
+
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Recombination</h4>
+          <p>
+            We recombine local factors from 2 images to generate composition of inferred object factors. On both CLEVR and Tetris (Left), we recombine inferred object components in the bounding box to generate novel object compositions. On CLEVR (Right), we compose all inferred factors to generalize up to 8 objects, though training images only contain 4 objects. 
+          </p>
+        </div>
+        <img src="materials/figures/local_factor_recombination.png"
+              alt="Local Recombination."/>
+
+
+        <br/>
+      </div>
+    </div>
+  </div>
+</section>
+<hr>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Multi-Modal Datasets</h2>
+        <p>
+          Finally, we show how Decomp Diffusion can extract and combine concepts across multiple datasets. We demonstrate the recombination of factors in multi-modal datasets, and the combination of factors from distinct models trained on different datasets. 
+        </p>
+        <br>
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Decomposition and Reconstruction</h4>
+          <p>
+            We show our method can capture a set of global factors that are shared between hybrid datasets such as KITTI and Virtual KITTI 2 scenes (Left), and CelebA-HQ and Anime faces (Right). Inferred concepts are named for better understanding. 
+          </p>
+        </div>
+        
+        <img src="materials/figures/multi_modal_decomposition.png"
+             alt="Multi-Modal Decomposition."/>
+
+
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Multi-Modal Recombination</h4>
+          <p>
+            Decomp Diffusion can recombine inferred factors from hybrid datasets to generate novel compositions. On a hybrid KITTI and Virtual KITTI dataset (Top), we recombine factors from a KITTI image and Virtual KITTI image to produce novel road scenes. On a hybrid CelebA-HQ and Anime dataset (Bottom), we combine hair shapes and colors from a CelebA-HQ human face image with face shape and facial features from an Anime face image to generate unique anime-like faces.
+          </p>
+        </div>
+        <img src="materials/figures/multi_modal_recombination.png"
+              alt="Multi-Modal Recombination."/>
+  
+        <div class="content has-text-justified has-text-centered">
+          <h4 class="title ">Cross-Dataset Recombination</h4>
+          <p>
+            Our method can recombine factors across 2 distinct models trained on different datasets. Below, we combine factors across one model trained on CLEVR and another model trained on CLEVR Toy to generate unseen compositions. 
+          </p>
+        </div>
+        <img src="materials/figures/cross_dataset_recombination.png"
+              alt="Cross-Dataset Recombination."/>
+      
+
+        <br/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+
+
+
+
+<section class="section">
+        <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Projects</h2>
+          Check out a list of our related papers on compositional generation and energy based models. A full list can be found <a href="https://energy-based-model.github.io/Energy-based-Model-MIT/">here</a>!
+          <br>
+          <br>
+          <br>
+
+          <div class="row vspace-top">
+          <div class="col-sm-3">
+              <video width="100%" playsinline="" autoplay="" preload="" muted="">
+                  <source src="materials/related/concept_discovery.m4v" type="video/mp4">
+              </video>
+          </div>
+          <div class="col-sm-9">
+            <div class="paper-title">
+              <a href="https://energy-based-model.github.io/unsupervised-concept-discovery/">Unsupervised Compositional Concepts Discovery with Text-to-Image Generative Models</a>
+          </div>
+          <div>
+            We present an unsupervised approach to discover generative concepts from a collection of images. We show how such generative concepts can accurately represent the content of images, be recombined and composed to generate new artistic and hybrid images, and be used as a representation for downstream classification tasks.
+
+          </div>
+          </div>
+          </div>
+          <br>
+          <br>
+  
+
+            
+        <div class="row vspace-top">
+        <div class="col-sm-3">
+            <video width="100%" playsinline="" autoplay="" preload="" muted="">
+                <source src="materials/related/recyle.m4v" type="video/mp4">
+            </video>
+        </div>
+        <div class="col-sm-9">
+          <div class="paper-title">
+            <a href="https://energy-based-model.github.io/reduce-reuse-recycle/">Reduce, Reuse, Recycle: Compositional Generation with Energy-Based Diffusion Models and MCMC</a>
+        </div>
+        <div>
+            We propose new samplers, inspired by MCMC, to enable successful compositional generation. Further, we propose an energy-based parameterization of diffusion models which enables the use of new compositional operators and more sophisticated, Metropolis-corrected samplers.
+        </div>
+        </div>
+        </div>
+          <br>
+
+
+        <div class="row vspace-top">
+        <div class="col-sm-3">
+            <video width="100%" playsinline="" autoplay="" preload="" muted="">
+                <source src="materials/related/comet.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="col-sm-9">
+          <div class="paper-title">
+            <a href="https://energy-based-model.github.io/comet/">Unsupervised Learning of Compositional Energy Concepts</a>
+        </div>
+        <div>
+            We propose COMET, which discovers and represents concepts as separate energy functions, enabling us to represent both global concepts as well as objects under a unified framework. COMET discovers energy functions through recomposing the input image, which we find captures independent factors without additional supervision.
+        </div>
+        </div>
+        </div>
+          <br>
+
+
+        <div class="row vspace-top">
+        <div class="col-sm-3">
+            <video width="100%" playsinline="" autoplay="" preload="" muted="">
+                <source src="materials/related/teaser_glide.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="col-sm-9">
+          <div class="paper-title">
+            <a href="https://energy-based-model.github.io/Compositional-Visual-Generation-with-Composable-Diffusion-Models/">Compositional Visual Generation with Composable Diffusion Models</a>
+        </div>
+        <div>
+            We present a method to compose different diffusion models together, drawing on the close connection of
+            diffusion models with EBMs. We illustrate how compositional operators enable
+            the ability to composing multiple sets of objects together as well as generate images subject to
+            complex text prompts.
+        </div>
+        </div>
+        </div>
+          <br>
+
+
+        <div class="row vspace-top">
+        <div class="col-sm-3">
+            <video width="100%" playsinline="" autoplay="" preload="" muted="">
+                <source src="materials/related/clevr_teaser.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="col-sm-9">
+          <div class="paper-title">
+            <a href="https://composevisualrelations.github.io/">Learning to Compose Visual Relations</a>
+        </div>
+        <div>
+            The visual world around us can be described as a structured set of objects and their associated relations. In this work, we propose to represent each relation as an unnormalized density (an energy-based model), enabling us to compose separate relations in a factorized manner. We show that such a factorized decomposition allows the model to both generate and edit scenes that have multiple sets of relations more faithfully.
+        </div>
+        </div>
+        </div>
+          <br>
+
+        <div class="row vspace-top">
+        <div class="col-sm-3">
+            <div class="move-down">
+                <img src="materials/related/comp_cartoon.png" class="img-fluid" alt="comp_carton" style="width:100%">
+            </div>
+        </div>
+        <div class="col-sm-9">
+          <div class="paper-title">
+            <a href="https://energy-based-model.github.io/compositional-generation-inference/">Compositional Visual Generation with Energy Based Models</a>
+        </div>
+        <div>
+            We present a set of compositional operators that enable EBMs to exhibit <b>zero-shot compositional</b> visual generation, enabling us to compose visual concepts
+            (through operators of conjunction, disjunction, or negation) together in a zero-shot manner.
+            Our approach enables us to generate faces given a  description
+            ((Smiling AND Female) OR (NOT Smiling AND Male)) or to combine several different objects together.
+        </div>
+        </div>
+        </div>
+      </div>
+    </div>
+        </div>
+</section>
+<!-- 
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content column is-full-width ">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{
+}</code></pre>
+  </div>
+</section> -->
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/jsu27/decomp_diffusion" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8 has-text-centered">
+        <div class="content">
+          <p>
+            This website is forked from the
+						<a href="https://nerfies.github.io/">Nerfies</a> and
+						<a href="https://github.com/nerfies/nerfies.github.io">source code</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
